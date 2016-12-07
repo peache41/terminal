@@ -29,4 +29,5 @@ pre {
 #history {
         max-height: 775px;
         overflow-y: auto;
+        overflow-x: hidden;
 }

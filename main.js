@@ -1,6 +1,29 @@
-/**
- * Created by Jean on 06/12/2016.
- */
+var commands = {
+    man: {
+        manual: ['Display the manual of the command'],
+        bin: function (args) {
+            if (args.length > 0) {
+                var f = args[0];
+                if (commands.hasOwnProperty(f)) {
+                    commands[f].manual.forEach(function (line) {
+                        displayLine(line);
+                    });
+                } else {
+                    displayLine('man: ' + f + ': command not found');
+                }
+            } else {
+                displayLine('What manual page do you want?');
+            }
+        }
+    },
+    alert: {
+        manual: ['Exectute a JavaScript alert'],
+        bin: function (args) {
+            alert(args.join(' '));
+        }
+    }
+};
+
 var printableCharacters = [
     'a',
     'b',
@@ -73,28 +96,6 @@ var display = [];
 var identifier = 'hack@jack:~# ';
 var version = 'v0.0.4';
 
-var commands = {
-    man: {
-        manual: ['Display the manual of the command'],
-        bin: function(args) {
-            var f = args[0];
-            if (commands.hasOwnProperty(f)) {
-                commands[f].manual.forEach(function(line) {
-                    displayLine(line);
-                });
-            } else {
-                displayLine('man: ' + f + ': command not found');
-            }
-        }
-    },
-    alert: {
-        manual: ['Exectute a JavaScript alert'],
-        bin: function(args) {
-            alert(args.join(' '));
-        }
-    }
-};
-
 function toHTML(str) {
     return str.replace(/&/gi, '&amp;').replace(/ /gi, '&nbsp;').replace(/"/gi, '&quot;');
 }
@@ -111,7 +112,7 @@ function displayLine(line) {
 
 function printHistory() {
     var historyElmt = document.getElementById('history');
-    var output = display.map(function(line) {
+    var output = display.map(function (line) {
         return toHTML(line);
     });
     historyElmt.innerHTML = output.join('<br/>');
@@ -178,9 +179,9 @@ function load() {
     document.getElementById('identifier').innerHTML = identifier;
 }
 
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     load();
-    window.addEventListener('keyup', function(event) {
+    window.addEventListener('keyup', function (event) {
         if (event.key) {
             if (printableCharacters.indexOf(event.key) > -1) {
                 event.preventDefault();
@@ -197,13 +198,13 @@ window.addEventListener('load', function() {
         }
     });
 
-    window.addEventListener('keypress', function(event) {
+    window.addEventListener('keypress', function (event) {
         if (event.key === "Backspace") {
             event.preventDefault();
         }
     });
 
-    window.addEventListener('keydown', function(event) {
+    window.addEventListener('keydown', function (event) {
         if (event.key === "Backspace") {
             event.preventDefault();
         }

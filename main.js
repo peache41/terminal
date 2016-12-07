@@ -1,6 +1,6 @@
 var commands = {
     man: {
-        manual: ['Display the manual of the command'],
+        manual: ['man - display the manual of the command'],
         bin: function (args) {
             if (args.length > 0) {
                 var f = args[0];
@@ -17,12 +17,122 @@ var commands = {
         }
     },
     alert: {
-        manual: ['Exectute a JavaScript alert'],
+        manual: ['alert - Execute a JavaScript alert'],
         bin: function (args) {
             alert(args.join(' '));
         }
+    },
+    echo: {
+        manual: ['echo - display a line of text'],
+        bin: function (args) {
+            displayLine(args.join(' '));
+        }
+    },
+    whoami: {
+        manual: ['whoami - print effective userid'],
+        bin: function () {
+            displayLine(user);
+        }
+    },
+    clear: {
+        manual: ['clear - clear the terminal screen'],
+        bin: function () {
+            display = [];
+            printHistory();
+        }
+    },
+    pwd: {
+        manual: ['pwd - print the current URL'],
+        bin: function () {
+            displayLine(window.location.href);
+        }
+    },
+    ls: {
+        manual: ['ls - print the current URL'],
+        bin: function () {
+            var arch = currentFolder.split('.');
+            var cursorFolder = fileSystem.root;
+            arch.forEach(function (folder) {
+                if (cursorFolder.hasOwnProperty(folder)) {
+                    cursorFolder = cursorFolder[folder];
+                    displayLine('drwxrwxrwx .')
+                }
+            });
+            console.log(cursorFolder);
+            displayLine(cursorFolder.path);
+            for (var file in cursorFolder.contents) {
+                if (cursorFolder.contents.hasOwnProperty(file)) {
+                    displayLine(file);
+                }
+            }
+        }
+    },
+    reboot: {
+        manual: ['reboot - reboot the terminal'],
+        bin: function (args) {
+            if (args.length > 0) {
+                if (args[0] === 'now') {
+                    window.location.reload(true);
+                } else {
+                    displayLine('reboot planned in ' + parseInt(args[0]).toString() + 'ms')
+                    window.setTimeout(function () {
+                        window.location.reload(true);
+                    }, parseInt(args[0]));
+                }
+            } else {
+                window.location.reload(true);
+            }
+        }
     }
 };
+
+var projects2016 = {
+    type: 'folder',
+    contents: {
+        project1: {
+            type: 'file',
+            contents: [
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                'Quisque blandit vulputate nisi non scelerisque.',
+                'Curabitur dolor nunc, convallis consectetur pretium sed, cursus eget purus.',
+                'Suspendisse tincidunt sapien lacus, a imperdiet ipsum condimentum sit amet. Phasellus sed facilisis orci.',
+                'Maecenas fermentum eleifend ligula placerat mattis.',
+                'Fusce fermentum nisi sed metus condimentum feugiat. Cras id consequat urna.'
+            ]
+        }
+    },
+    path: '~/projects',
+    name: 'projects'
+};
+
+var projects2015 = {
+    type: 'folder',
+    contents: {},
+    path: '~/projects',
+    name: 'projects'
+};
+
+var projects = {
+    type: 'folder',
+    contents: {2015: projects2015, 2016: projects2016},
+    path: '~/projects',
+    name: 'projects'
+};
+
+var home = {
+    type: 'folder',
+    contents: {projects: projects},
+    path: '~',
+    name: 'home'
+};
+
+var fileSystem = {
+    root: {
+        home: home
+    }
+};
+
+var currentFolder = 'home';
 
 var printableCharacters = [
     'a',
@@ -91,13 +201,32 @@ var printableCharacters = [
     '@'
 ];
 
+var user = 'hack';
+var machine = 'jack';
+
 var prompt = '';
 var display = [];
-var identifier = 'hack@jack:~# ';
-var version = 'v0.0.4';
+var identifier = user + '@' + machine + ':~# ';
+var version = 'v0.0.10';
+
+function replaceLinks(match, p0, p1, p2, p3, offset, string) {
+    var reverseAmpRegexp = new RegExp('&amp;', 'gi');
+    p1 = p1.replace(reverseAmpRegexp, '&');
+    return '<a href="' + p1 + '" target="_blank">' + p1 + '</a>';
+}
 
 function toHTML(str) {
-    return str.replace(/&/gi, '&amp;').replace(/ /gi, '&nbsp;').replace(/"/gi, '&quot;');
+    if (typeof str === 'string') {
+        var ampRegexp = new RegExp('&', 'gi');
+        var spaceRegexp = new RegExp(' ', 'gi');
+        var quoteRegexp = new RegExp('"', 'gi');
+        var ltRegexp = new RegExp('<', 'gi');
+        var gtRegexp = new RegExp('>', 'gi');
+        var startLinkRegexp = new RegExp('(^| )((https?|file|ftp|about|chrome):(//)?[^ ]*)');
+        str = str.replace(ampRegexp, '&amp;').replace(spaceRegexp, '&nbsp;').replace(quoteRegexp, '&quot;').replace(ltRegexp, '$lt;').replace(gtRegexp, '&gt;');
+        return str.replace(startLinkRegexp, replaceLinks);
+    }
+    return str;
 }
 
 function print() {
@@ -179,9 +308,21 @@ function load() {
     document.getElementById('identifier').innerHTML = identifier;
 }
 
+function flashCursor() {
+    window.setInterval(function () {
+        document.getElementById('cursor').innerHTML = '_';
+    }, 1000);
+    window.setTimeout(function () {
+        window.setInterval(function () {
+            document.getElementById('cursor').innerHTML = '';
+        }, 1000);
+    }, 500);
+}
+
 window.addEventListener('load', function () {
+    flashCursor();
     load();
-    window.addEventListener('keyup', function (event) {
+    window.addEventListener('keypress', function (event) {
         if (event.key) {
             if (printableCharacters.indexOf(event.key) > -1) {
                 event.preventDefault();
@@ -189,7 +330,6 @@ window.addEventListener('load', function () {
             }
             else if (event.key === "Backspace") {
                 event.preventDefault();
-                deleteLastChar();
             }
             else if (event.key === "Enter") {
                 event.preventDefault();
@@ -198,7 +338,7 @@ window.addEventListener('load', function () {
         }
     });
 
-    window.addEventListener('keypress', function (event) {
+    window.addEventListener('keyup', function (event) {
         if (event.key === "Backspace") {
             event.preventDefault();
         }
@@ -207,7 +347,7 @@ window.addEventListener('load', function () {
     window.addEventListener('keydown', function (event) {
         if (event.key === "Backspace") {
             event.preventDefault();
+            deleteLastChar();
         }
     });
-
 }, false);

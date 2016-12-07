@@ -183,14 +183,30 @@ window.addEventListener('load', function() {
     window.addEventListener('keyup', function(event) {
         if (event.key) {
             if (printableCharacters.indexOf(event.key) > -1) {
+                event.preventDefault();
                 addChar(event.key);
             }
             else if (event.key === "Backspace") {
+                event.preventDefault();
                 deleteLastChar();
             }
             else if (event.key === "Enter") {
+                event.preventDefault();
                 cleanPrompt();
             }
         }
     });
+
+    window.addEventListener('keypress', function(event) {
+        if (event.key === "Backspace") {
+            event.preventDefault();
+        }
+    });
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === "Backspace") {
+            event.preventDefault();
+        }
+    });
+
 }, false);

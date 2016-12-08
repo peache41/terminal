@@ -1,6 +1,11 @@
 # terminal
 A funny (false) terminal in JavaScript
 
+## Live demo
+
+[HERE](https://jack3113.github.io/terminal/)
+
+## Help
 
 ### Commands available
 

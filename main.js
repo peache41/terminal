@@ -79,8 +79,16 @@ var commands = {
 
             if (args.length === 0) {
                 destination = ['', 'home'];
+            } else if (JSON.stringify(args) === '["/"]') {
+                destination = [''];
             } else {
                 destination = args[0].split('/');
+            }
+
+            if (destination[0] === '~') {
+                arch = [];
+                destination.shift();
+                destination = ['', 'home'].concat(destination);
             }
 
             if (destination[0] === '') {
@@ -114,6 +122,10 @@ var commands = {
                     displayLine('cd: ' + folder + ': No such file or directory');
                 }
             });
+            if (currentFolder === '') {
+                currentFolder = '/';
+            }
+            updatePath(currentFolder);
         }
     },
     cat: {
@@ -286,11 +298,9 @@ var printableCharacters = [
 
 var user = 'hack';
 var machine = 'jack';
-var path = '~';
 
 var prompt = '';
 var display = [];
-var identifier = user + '@' + machine + ':' + path + '# ';
 var version = '0.0.12';
 
 function replaceLinks(match, p1, p2, p3, offset, string) {
@@ -354,7 +364,7 @@ function exec(command) {
 }
 
 function cleanPrompt() {
-    displayLine(identifier + prompt);
+    displayLine(document.getElementById('identifier').innerHTML + prompt);
     if (prompt.length > 0) {
         exec(prompt);
     }
@@ -389,7 +399,11 @@ function load() {
     displayLine(now.toString());
     displayLine(' ');
 
-    document.getElementById('identifier').innerHTML = identifier;
+    updatePath(currentFolder);
+}
+
+function updatePath(path) {
+    document.getElementById('identifier').innerHTML = user + '@' + machine + ':' + path + '# ';
 }
 
 function flashCursor() {

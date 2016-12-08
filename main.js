@@ -156,7 +156,7 @@ var commands = {
                 if (args[0] === 'now') {
                     window.location.reload(true);
                 } else {
-                    displayLine('reboot planned in ' + parseInt(args[0]).toString() + 'ms')
+                    displayLine('reboot planned in ' + parseInt(args[0]).toString() + 'ms');
                     window.setTimeout(function() {
                         window.location.reload(true);
                     }, parseInt(args[0]));
@@ -302,7 +302,6 @@ function replaceLinks(match, p1, p2, p3, offset, string) {
 function toHTML(str) {
     if (typeof str === 'string') {
         var ampRegexp = new RegExp('&', 'gi');
-        var spaceRegexp = new RegExp(' ', 'gi');
         var quoteRegexp = new RegExp('"', 'gi');
         var ltRegexp = new RegExp('<', 'gi');
         var gtRegexp = new RegExp('>', 'gi');

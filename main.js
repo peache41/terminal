@@ -1,11 +1,11 @@
 var commands = {
     man: {
         manual: ['man - display the manual of the command'],
-        bin: function (args) {
+        bin: function(args) {
             if (args.length > 0) {
                 var f = args[0];
                 if (commands.hasOwnProperty(f)) {
-                    commands[f].manual.forEach(function (line) {
+                    commands[f].manual.forEach(function(line) {
                         displayLine(line);
                     });
                 } else {
@@ -18,64 +18,146 @@ var commands = {
     },
     alert: {
         manual: ['alert - Execute a JavaScript alert'],
-        bin: function (args) {
+        bin: function(args) {
             alert(args.join(' '));
         }
     },
     echo: {
         manual: ['echo - display a line of text'],
-        bin: function (args) {
+        bin: function(args) {
             displayLine(args.join(' '));
         }
     },
     whoami: {
         manual: ['whoami - print effective userid'],
-        bin: function () {
+        bin: function() {
             displayLine(user);
         }
     },
     clear: {
         manual: ['clear - clear the terminal screen'],
-        bin: function () {
+        bin: function() {
             display = [];
             printHistory();
         }
     },
     pwd: {
-        manual: ['pwd - print the current URL'],
-        bin: function () {
-            displayLine(window.location.href);
+        manual: ['pwd - print name of current directory'],
+        bin: function() {
+            displayLine(currentFolder);
         }
     },
     ls: {
         manual: ['ls - print the current URL'],
-        bin: function () {
-            var arch = currentFolder.split('.');
-            var cursorFolder = fileSystem.root;
-            arch.forEach(function (folder) {
-                if (cursorFolder.hasOwnProperty(folder)) {
-                    cursorFolder = cursorFolder[folder];
-                    displayLine('drwxrwxrwx .')
+        bin: function() {
+            var arch = currentFolder.split('/');
+            arch.shift();
+            var cursorFolder = fileSystem;
+            arch.forEach(function(folder) {
+                if (cursorFolder.contents.hasOwnProperty(folder)) {
+                    cursorFolder = cursorFolder.contents[folder];
                 }
             });
-            console.log(cursorFolder);
-            displayLine(cursorFolder.path);
+            displayLine('drwx------ .');
             for (var file in cursorFolder.contents) {
                 if (cursorFolder.contents.hasOwnProperty(file)) {
-                    displayLine(file);
+                    var prefix = '?';
+                    if (cursorFolder.contents[file].hasOwnProperty('type')) {
+                        prefix = cursorFolder.contents[file].type[0];
+                    }
+                    displayLine(prefix + 'rwxrwxrwx ' + file);
+                }
+            }
+        }
+    },
+    cd: {
+        manual: [''],
+        bin: function(args) {
+            var destination;
+            var arch = currentFolder.split('/');
+            var cursorFolder = fileSystem;
+
+            if (args.length === 0) {
+                destination = ['', 'home'];
+            } else {
+                destination = args[0].split('/');
+            }
+
+            if (destination[0] === '') {
+                arch = [];
+                destination.shift();
+            }
+
+            if (destination[0] === '.') {
+                destination.shift();
+            } else if (destination[0] === '..') {
+                destination.shift();
+                arch.pop();
+            }
+            currentFolder = '';
+            arch.forEach(function(folder) {
+                if (cursorFolder.contents.hasOwnProperty(folder)) {
+                    cursorFolder = cursorFolder.contents[folder];
+                    currentFolder += '/' + folder;
+                }
+            });
+
+            destination.forEach(function(folder) {
+                if (cursorFolder.contents.hasOwnProperty(folder)) {
+                    if (cursorFolder.contents[folder].hasOwnProperty('type') && cursorFolder.contents[folder].type === 'directory') {
+                        cursorFolder = cursorFolder.contents[folder];
+                        currentFolder += '/' + folder;
+                    } else {
+                        displayLine('cd: ' + folder + ': Not a directory');
+                    }
+                } else {
+                    displayLine('cd: ' + folder + ': No such file or directory');
+                }
+            });
+        }
+    },
+    cat: {
+        manual: ['cat - concatenate files and print on the standard output'],
+        bin: function(args) {
+            if (args.length > 0) {
+                var arch = currentFolder.split('/');
+                arch.shift();
+                var cursorFolder = fileSystem;
+                arch.forEach(function(folder) {
+                    if (cursorFolder.contents.hasOwnProperty(folder)) {
+                        cursorFolder = cursorFolder.contents[folder];
+                    }
+                });
+                var file = args[0];
+                if (cursorFolder.contents.hasOwnProperty(file)) {
+                    if (cursorFolder.contents[file].hasOwnProperty('type')) {
+                        if (cursorFolder.contents[file].type === 'file') {
+                            cursorFolder.contents[file].contents.forEach(function(line) {
+                                displayLine(line);
+                            });
+                        } else if (cursorFolder.contents[file].type === 'directory') {
+                            displayLine('cd: ' + file + ': Is a directory');
+                        } else {
+                            displayLine('cd: ' + file + ': Is not a file');
+                        }
+                    } else {
+                        displayLine('cd: ' + file + ': Is not a file');
+                    }
+                } else {
+                    displayLine('cd: ' + file + ': No such file or directory');
                 }
             }
         }
     },
     reboot: {
         manual: ['reboot - reboot the terminal'],
-        bin: function (args) {
+        bin: function(args) {
             if (args.length > 0) {
                 if (args[0] === 'now') {
                     window.location.reload(true);
                 } else {
                     displayLine('reboot planned in ' + parseInt(args[0]).toString() + 'ms')
-                    window.setTimeout(function () {
+                    window.setTimeout(function() {
                         window.location.reload(true);
                     }, parseInt(args[0]));
                 }
@@ -87,7 +169,7 @@ var commands = {
 };
 
 var projects2016 = {
-    type: 'folder',
+    type: 'directory',
     contents: {
         project1: {
             type: 'file',
@@ -100,39 +182,40 @@ var projects2016 = {
                 'Fusce fermentum nisi sed metus condimentum feugiat. Cras id consequat urna.'
             ]
         }
-    },
-    path: '~/projects',
-    name: 'projects'
+    }
+};
+
+var readme = {
+    type: 'file',
+    contents: ['https://github.com/Jack3113/terminal/blob/master/README.md']
 };
 
 var projects2015 = {
-    type: 'folder',
-    contents: {},
-    path: '~/projects',
-    name: 'projects'
+    type: 'directory',
+    contents: {}
 };
 
 var projects = {
-    type: 'folder',
-    contents: {2015: projects2015, 2016: projects2016},
-    path: '~/projects',
-    name: 'projects'
+    type: 'directory',
+    contents: {2015: projects2015, 2016: projects2016}
 };
 
 var home = {
-    type: 'folder',
-    contents: {projects: projects},
-    path: '~',
-    name: 'home'
+    type: 'directory',
+    contents: {
+        projects: projects,
+        README: readme
+    }
 };
 
 var fileSystem = {
-    root: {
+    type: 'directory',
+    contents: {
         home: home
     }
 };
 
-var currentFolder = 'home';
+var currentFolder = '/home';
 
 var printableCharacters = [
     'a',
@@ -203,13 +286,14 @@ var printableCharacters = [
 
 var user = 'hack';
 var machine = 'jack';
+var path = '~';
 
 var prompt = '';
 var display = [];
-var identifier = user + '@' + machine + ':~# ';
-var version = 'v0.0.10';
+var identifier = user + '@' + machine + ':' + path + '# ';
+var version = '0.0.12';
 
-function replaceLinks(match, p0, p1, p2, p3, offset, string) {
+function replaceLinks(match, p1, p2, p3, offset, string) {
     var reverseAmpRegexp = new RegExp('&amp;', 'gi');
     p1 = p1.replace(reverseAmpRegexp, '&');
     return '<a href="' + p1 + '" target="_blank">' + p1 + '</a>';
@@ -222,8 +306,8 @@ function toHTML(str) {
         var quoteRegexp = new RegExp('"', 'gi');
         var ltRegexp = new RegExp('<', 'gi');
         var gtRegexp = new RegExp('>', 'gi');
-        var startLinkRegexp = new RegExp('(^| )((https?|file|ftp|about|chrome):(//)?[^ ]*)');
-        str = str.replace(ampRegexp, '&amp;').replace(spaceRegexp, '&nbsp;').replace(quoteRegexp, '&quot;').replace(ltRegexp, '$lt;').replace(gtRegexp, '&gt;');
+        var startLinkRegexp = new RegExp('((https?|file|ftp|about|chrome):(//)?[^ ]*)');
+        str = str.replace(ampRegexp, '&amp;').replace(quoteRegexp, '&quot;').replace(ltRegexp, '$lt;').replace(gtRegexp, '&gt;');
         return str.replace(startLinkRegexp, replaceLinks);
     }
     return str;
@@ -241,7 +325,7 @@ function displayLine(line) {
 
 function printHistory() {
     var historyElmt = document.getElementById('history');
-    var output = display.map(function (line) {
+    var output = display.map(function(line) {
         return toHTML(line);
     });
     historyElmt.innerHTML = output.join('<br/>');
@@ -298,8 +382,9 @@ function load() {
     displayLine('H:::::::H     H:::::::H a::::::::::aa:::a cc:::::::::::::::ck::::::k   k:::::k       T:::::::::T    ee:::::::::::::e   r:::::r            m::::m   m::::m   m::::m');
     displayLine('HHHHHHHHH     HHHHHHHHH  aaaaaaaaaa  aaaa   cccccccccccccccckkkkkkkk    kkkkkkk      TTTTTTTTTTT      eeeeeeeeeeeeee   rrrrrrr            mmmmmm   mmmmmm   mmmmmm');
     displayLine(' ');
-    displayLine('http://hackjack.info');
-    displayLine(version);
+    displayLine('Sources: https://github.com/Jack3113/terminal');
+    displayLine('Author: HackJack [ http://hackjack.info ]');
+    displayLine('Version: ' + version);
     displayLine(' ');
     var now = new Date();
     displayLine(now.toString());
@@ -309,22 +394,22 @@ function load() {
 }
 
 function flashCursor() {
-    window.setInterval(function () {
+    window.setInterval(function() {
         document.getElementById('cursor').innerHTML = '_';
     }, 1000);
-    window.setTimeout(function () {
-        window.setInterval(function () {
+    window.setTimeout(function() {
+        window.setInterval(function() {
             document.getElementById('cursor').innerHTML = '';
         }, 1000);
     }, 500);
 }
 
-window.addEventListener('load', function () {
+window.addEventListener('load', function() {
     flashCursor();
     load();
-    window.addEventListener('keypress', function (event) {
+    window.addEventListener('keypress', function(event) {
         if (event.key) {
-            if (printableCharacters.indexOf(event.key) > -1) {
+            if (printableCharacters.indexOf(event.key.toLowerCase()) > -1) {
                 event.preventDefault();
                 addChar(event.key);
             }
@@ -338,13 +423,13 @@ window.addEventListener('load', function () {
         }
     });
 
-    window.addEventListener('keyup', function (event) {
+    window.addEventListener('keyup', function(event) {
         if (event.key === "Backspace") {
             event.preventDefault();
         }
     });
 
-    window.addEventListener('keydown', function (event) {
+    window.addEventListener('keydown', function(event) {
         if (event.key === "Backspace") {
             event.preventDefault();
             deleteLastChar();

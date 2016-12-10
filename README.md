@@ -1,3 +1,5 @@
+Based on Jack3113/terminal 
+
 # terminal
 A funny (false) terminal in JavaScript
 

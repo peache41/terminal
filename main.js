@@ -202,6 +202,11 @@ var readme = {
     contents: ['https://github.com/Jack3113/terminal/blob/master/README.md']
 };
 
+var cv = {
+    type: 'file',
+    contents: ['coucou']
+}
+
 var projects2015 = {
     type: 'directory',
     contents: {}
@@ -215,6 +220,7 @@ var projects = {
 var home = {
     type: 'directory',
     contents: {
+	CV: cv,
         projects: projects,
         README: readme
     }
@@ -296,12 +302,12 @@ var printableCharacters = [
     '@'
 ];
 
-var user = 'hack';
-var machine = 'jack';
+var user = 'visitor';
+var machine = 'phnodin.fr';
 
 var prompt = '';
 var display = [];
-var version = '0.0.12';
+var version = '44.07.69';
 
 function replaceLinks(match, p1, p2, p3, offset, string) {
     var reverseAmpRegexp = new RegExp('&amp;', 'gi');
@@ -374,22 +380,11 @@ function cleanPrompt() {
 }
 
 function load() {
-    displayLine('HHHHHHHHH     HHHHHHHHH                                     kkkkkkkk           TTTTTTTTTTTTTTTTTTTTTTT                                                            ');
-    displayLine('H:::::::H     H:::::::H                                     k::::::k           T:::::::::::::::::::::T                                                            ');
-    displayLine('H:::::::H     H:::::::H                                     k::::::k           T:::::::::::::::::::::T                                                            ');
-    displayLine('HH::::::H     H::::::HH                                     k::::::k           T:::::TT:::::::TT:::::T                                                            ');
-    displayLine('  H:::::H     H:::::H    aaaaaaaaaaaaa      cccccccccccccccc k:::::k    kkkkkkkTTTTTT  T:::::T  TTTTTTeeeeeeeeeeee    rrrrr   rrrrrrrrr      mmmmmmm    mmmmmmm   ');
-    displayLine('  H:::::H     H:::::H    a::::::::::::a   cc:::::::::::::::c k:::::k   k:::::k         T:::::T      ee::::::::::::ee  r::::rrr:::::::::r   mm:::::::m  m:::::::mm ');
-    displayLine('  H::::::HHHHH::::::H    aaaaaaaaa:::::a c:::::::::::::::::c k:::::k  k:::::k          T:::::T     e::::::eeeee:::::eer:::::::::::::::::r m::::::::::mm::::::::::m');
-    displayLine('  H:::::::::::::::::H             a::::ac:::::::cccccc:::::c k:::::k k:::::k           T:::::T    e::::::e     e:::::err::::::rrrrr::::::rm::::::::::::::::::::::m');
-    displayLine('  H:::::::::::::::::H      aaaaaaa:::::ac::::::c     ccccccc k::::::k:::::k            T:::::T    e:::::::eeeee::::::e r:::::r     r:::::rm:::::mmm::::::mmm:::::m');
-    displayLine('  H::::::HHHHH::::::H    aa::::::::::::ac:::::c              k:::::::::::k             T:::::T    e:::::::::::::::::e  r:::::r     rrrrrrrm::::m   m::::m   m::::m');
-    displayLine('  H:::::H     H:::::H   a::::aaaa::::::ac:::::c              k:::::::::::k             T:::::T    e::::::eeeeeeeeeee   r:::::r            m::::m   m::::m   m::::m');
-    displayLine('  H:::::H     H:::::H  a::::a    a:::::ac::::::c     ccccccc k::::::k:::::k            T:::::T    e:::::::e            r:::::r            m::::m   m::::m   m::::m');
-    displayLine('HH::::::H     H::::::HHa::::a    a:::::ac:::::::cccccc:::::ck::::::k k:::::k         TT:::::::TT  e::::::::e           r:::::r            m::::m   m::::m   m::::m');
-    displayLine('H:::::::H     H:::::::Ha:::::aaaa::::::a c:::::::::::::::::ck::::::k  k:::::k        T:::::::::T   e::::::::eeeeeeee   r:::::r            m::::m   m::::m   m::::m');
-    displayLine('H:::::::H     H:::::::H a::::::::::aa:::a cc:::::::::::::::ck::::::k   k:::::k       T:::::::::T    ee:::::::::::::e   r:::::r            m::::m   m::::m   m::::m');
-    displayLine('HHHHHHHHH     HHHHHHHHH  aaaaaaaaaa  aaaa   cccccccccccccccckkkkkkkk    kkkkkkk      TTTTTTTTTTT      eeeeeeeeeeeeee   rrrrrrr            mmmmmm   mmmmmm   mmmmmm');
+    displayLine(' ____  _   _ _   _           _   ');
+    displayLine('|  _ \\| | | | \\ | | ___   __| |  ');
+    displayLine('| |_) | |_| |  \\| |/ _ \\ / _` |  ');
+    displayLine('|  __/|  _  | |\\  | (_) | (_| |_ ');
+    displayLine('|_|   |_| |_|_| \\_|\\___/ \\__,_(_)');
     displayLine(' ');
     displayLine('Sources: https://github.com/Jack3113/terminal');
     displayLine('Author: HackJack [ http://hackjack.info ]');
